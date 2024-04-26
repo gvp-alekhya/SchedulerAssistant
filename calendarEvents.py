@@ -36,29 +36,23 @@ def book_appointment(start_time):
         },
     }
     event = calendar_service.events().insert(calendarId= GOOGLE_CALENDAR_ID, body=event).execute()
-    print('Appointment created: %s' % event.get('htmlLink'))
     return 'Appointment created:' + event.get('htmlLink')
 
 
 def get_free_slots(start):
     start_time = datetime.fromisoformat(start)
-    end_time = start_time + timedelta(days=1)
-    print(start_time.isoformat() + 'Z', end_time.isoformat() + 'Z')
+    end_time = start_time + timedelta(days=3)
+
+    start_time_iso_format = start_time.isoformat() +'Z'
+    end_time_iso_format = end_time.isoformat()+'Z'
     # Retrieve events for the specified day
-    events_result = calendar_service.events().list(
-        calendarId=GOOGLE_CALENDAR_ID,
-        timeMin=start_time.isoformat() +'Z',
-        timeMax=end_time.isoformat()+'Z',
-        singleEvents=True,
-        orderBy='startTime',
-        timeZone="PST"
-    ).execute()
+    events_result = _getEventList(start_time_iso_format,end_time_iso_format,None)
     events = events_result.get('items', [])
     free_slots = []
 
     # Determine free slots based on retrieved events
-    current_time = datetime.fromisoformat(start_time.isoformat() +'Z' )
-    end_time = datetime.fromisoformat(end_time.isoformat() +'Z')
+    current_time = datetime.fromisoformat(start_time_iso_format )
+    end_time = datetime.fromisoformat(end_time_iso_format)
     for event in events:
         event_start = event['start'].get('dateTime', event['start'].get('date'))
         event_end = event['end'].get('dateTime', event['end'].get('date'))
@@ -96,14 +90,12 @@ def upcoming_events():
 
     # Define the current datetime to use as the start time
     now = datetime.utcnow().isoformat() + 'Z'  
-    print(now)
+
     try:
         # Make a request to list upcoming events
-        events_result = calendar_service.events().list(calendarId=GOOGLE_CALENDAR_ID, timeMin=now,
-                                              maxResults=10, singleEvents=True,
-                                              orderBy='startTime').execute()
+        events_result = _getEventList(now,None,10)
         events = events_result.get('items', [])
-        print (events)
+
         upcomingEvents = ''
         if not events:
             return ('No upcoming events found.')
@@ -119,22 +111,29 @@ def upcoming_events():
     except Exception as e:
         return f"An error occurred while fetching events: {str(e)}"
 
+def _getEventList(time_min, time_max, max_results):
+    request_params = {
+        'calendarId':GOOGLE_CALENDAR_ID,
+        'timeMin':time_min,
+        'singleEvents':True,
+        'orderBy':'startTime'
+    }
+    if time_max:
+        request_params["timeMax"] = time_max
+    if max_results:
+        request_params["maxResults"] = max_results
+    return calendar_service.events().list(**request_params).execute()
+
 def find_event_by_datetime( start_time):
 
     # Define the end datetime by adding a small delta (e.g., 1 minute) to the start datetime
-    end_datetime = start_time + timedelta(hours=1)  
+    end_datetime = start_time + timedelta(hours=1) 
+    #To fetch appointment in user timezone shouldnot add 'Z' 
     time_min = start_time.isoformat()
-    time_max = end_datetime.isoformat()
-    print (time_max , time_min)
+    time_max = end_datetime.isoformat() 
     try:
         # Make a request to list events within the specified time range
-        events_result = calendar_service.events().list(
-            calendarId=GOOGLE_CALENDAR_ID,
-            timeMin=time_min,
-            timeMax=time_max,
-            singleEvents=True,
-        ).execute()
-        print (events_result)
+        events_result = _getEventList(time_min,time_max,None)
         events = events_result.get('items', [])
         
         if not events:
@@ -143,7 +142,6 @@ def find_event_by_datetime( start_time):
             # Filter events to find the exact event matching the start datetime
             for event in events:
                 event_start = event['start'].get('dateTime')
-                print (event_start)
                 if event_start == start_time.isoformat():
                     return event  # Return the matching event
 
@@ -158,7 +156,6 @@ def cancel_appointment(date_time):
    
     date_time = datetime.fromisoformat(date_time)
     event = find_event_by_datetime(date_time)
-    print( event)
     if not event: 
         return 'No appointment matched for this date'
     # Delete the event
@@ -168,11 +165,8 @@ def cancel_appointment(date_time):
 
 # Function to reschedule an appointment
 def reschedule_appointment( old_start_time,new_start_time):
-    print (old_start_time)
     old_start_time = datetime.fromisoformat(old_start_time)
-    print (old_start_time)  
     event = find_event_by_datetime(old_start_time)
-    print (event)
     if not event:
         return 'No appointment found'
     # Update the event with new start and end times

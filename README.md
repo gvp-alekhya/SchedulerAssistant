@@ -24,5 +24,5 @@ Before running the Scheduling Assistant Service, make sure you have the followin
    ```bash
    git clone https://github.com/your-username/scheduling-assistant.git
 
-2. pip install google-api-python-client
+2. pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client openai
 

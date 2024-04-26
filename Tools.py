@@ -5,13 +5,13 @@ GET_FREE_SLOTS = {
       "type": "function",
       "function": {
         "name": "get_free_slots",
-        "description": "Get free slots for an appointment from a calendar. Business hours are generally between 9AM to 6PM pST. And each appointment is for 45 minutes. As response you need to show time slots only between the business hours",
+        "description": "Get free slots for an appointment from a calendar. Business hours are generally between 9AM to 6PM pST. And each appointment is for 45 minutes. As response you need to show time slots only between the business hours (9AM to 5PM) and later than the current user time",
         "parameters": {
           "type": "object",
           "properties": {
             "date": {
               "type": "string",
-              "description": "For which date. Infer this date time in ISO based foramte based on the user input and his timezone. You should consider today as "+getISOString(datetime.now())
+              "description": "For which date. Infer this as date time in ISO format based on the user input and his timezone. You should consider today as "+getISOString(datetime.now())
             },
           },
           "required": ["date"]
@@ -62,7 +62,7 @@ CANCEL_APPOINTMENT = {
           "properties": {
             "time": {
               "type": "string",
-              "description": "Date and Time slot for the appointment. Infer this as a date time in ISO based on the user input and his timezone"
+              "description": "Date and Time slot for the appointment to be cancelled. Infer this as a date time in ISO based on the user input and his timezone"
             },
 
           },
@@ -80,7 +80,7 @@ RESCHEDULE_APPOINTMENT = {
           "properties": {
             "newStartTime": {
               "type": "string",
-              "description": "New Date and Time slot for the new appointment. Infer this as a date time in ISO based on the user input and his timezone"
+              "description": "Rescheduled Date and Time slot for the new appointment. Infer this as a date time in ISO based on the user input and his timezone"
             },
               "oldStartTime": {
               "type": "string",
