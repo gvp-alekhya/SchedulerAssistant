@@ -2,7 +2,7 @@ from googleapiclient.discovery import build
 from openai import OpenAI, AssistantEventHandler
 from EventHandler import EventHandler
 from Tools import *
-from calendarEvents import *
+from calendarService import *
 
 
 # Set your OpenAI API key

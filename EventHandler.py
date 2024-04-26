@@ -4,7 +4,7 @@ import json
 from openai import OpenAI, AssistantEventHandler
 from typing_extensions import override
 
-from calendarEvents import *
+from calendarService import *
 
 
 class EventHandler(AssistantEventHandler):
