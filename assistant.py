@@ -1,12 +1,13 @@
 from googleapiclient.discovery import build
 from openai import OpenAI, AssistantEventHandler
-from EventHandler import EventHandler
-from Tools import *
-from calendarService import *
+from configs import *
+from event_handler import EventHandler
+from tools import *
+from calendar_service import *
 
 
 # Set your OpenAI API key
-openai_api_key = "YOUR_API_KEY"
+openai_api_key = OPEN_API_KEY
 openai_client = OpenAI(api_key=openai_api_key)
 assistant = openai_client.beta.assistants.create(
     name="Calendar Assistant",
@@ -16,7 +17,7 @@ assistant = openai_client.beta.assistants.create(
 )
 # Create a new thread for the conversation
 thread = openai_client.beta.threads.create()
-
+calendar_manager = CalendarService(CALENDAR_CLIENT_SECRET_FILE, SCOPES, GOOGLE_CALENDAR_ID)
 # Start an interactive chat session
 print("Welcome to the Calendar Assistant! You can ask me anything. Type 'exit' to end the conversation.")
 while True:
@@ -36,7 +37,7 @@ while True:
             thread_id=thread.id,
             assistant_id=assistant.id,
             instructions="Please address the user as Jane Doe. The user has a premium account.",
-            event_handler=EventHandler(openai_client),
+            event_handler=EventHandler(openai_client,calendar_manager),
         ) as stream:
             for event in stream:
               stream.until_done()

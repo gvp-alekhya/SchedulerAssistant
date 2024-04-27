@@ -4,13 +4,15 @@ import json
 from openai import OpenAI, AssistantEventHandler
 from typing_extensions import override
 
-from calendarService import *
+from calendar_service import *
+from configs import *
 
 
 class EventHandler(AssistantEventHandler):
-    def __init__(self, openai_client):
+    def __init__(self, openai_client, calendar_manager):
         super().__init__()
         self.openai_client = openai_client
+        self.calendar_manager = calendar_manager
     @override
     def on_event(self, event):
       # Retrieve events that are denoted with 'requires_action'
@@ -21,32 +23,32 @@ class EventHandler(AssistantEventHandler):
 
     def handle_requires_action(self, data, run_id):
       tool_outputs = []
-        
+
       for tool in data.required_action.submit_tool_outputs.tool_calls:
         
         if tool.function.name == "get_free_slots":
           parsed_data = json.loads(tool.function.arguments)
-          available_slots = get_free_slots(parsed_data['date'])
+          available_slots = self.calendar_manager.get_free_slots(parsed_data['date'])
           tool_outputs.append({"tool_call_id": tool.id, "output": available_slots})
 
         if tool.function.name == "book_appointment":   
           parsed_data = json.loads(tool.function.arguments)
-          status = book_appointment(parsed_data['time'])
+          status = self.calendar_manager.book_appointment(parsed_data['time'])
           tool_outputs.append({"tool_call_id": tool.id, "output": status})
         
         if tool.function.name == "cancel_appointment":   
           parsed_data = json.loads(tool.function.arguments)
-          status = cancel_appointment(parsed_data['time'])
+          status = self.calendar_manager.cancel_appointment(parsed_data['time'])
           tool_outputs.append({"tool_call_id": tool.id, "output": status})
         
         if tool.function.name == "upcoming_appointments":   
-          events = upcoming_events()
+          events = self.calendar_manager.upcoming_events()
           tool_outputs.append({"tool_call_id": tool.id, "output": events})
         
         if tool.function.name == "reschedule_appointment": 
           parsed_data = json.loads(tool.function.arguments) 
           print (parsed_data) 
-          events = reschedule_appointment(parsed_data["oldStartTime"], parsed_data["newStartTime"])
+          events = self.calendar_manager.reschedule_appointment(parsed_data["oldStartTime"], parsed_data["newStartTime"])
           tool_outputs.append({"tool_call_id": tool.id, "output": events})
         
       # Submit all tool_outputs at the same time
@@ -61,7 +63,7 @@ class EventHandler(AssistantEventHandler):
           thread_id=self.current_run.thread_id,
           run_id=self.current_run.id,
           tool_outputs=tool_outputs,
-          event_handler=EventHandler(self.openai_client),
+          event_handler=EventHandler(self.openai_client, self.calendar_manager),
       ) as stream:
           # Accumulate the text deltas
           for text in stream.text_deltas:

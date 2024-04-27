@@ -1,11 +1,11 @@
 from datetime import datetime
 
-from dateTimeUtil import getISOString
+from date_time_util import getISOString
 GET_FREE_SLOTS = {
       "type": "function",
       "function": {
         "name": "get_free_slots",
-        "description": "Get free slots for an appointment from a calendar. Business hours are generally between 9AM to 6PM pST. And each appointment is for 45 minutes. As response you need to show time slots only between the business hours (9AM to 5PM) and later than the current user time",
+        "description": "Get free slots for an appointment from a calendar. Business hours are only between 9AM to 6PM pST. And each appointment is for 45 minutes. As response you need to show time slots only between the business hours (9AM to 5PM) and later than the current user time",
         "parameters": {
           "type": "object",
           "properties": {
