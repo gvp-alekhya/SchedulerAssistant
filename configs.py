@@ -1,4 +1,4 @@
-OPEN_API_KEY = "sk-proj-sxHY2R6J7F5FWscrhNrsT3BlbkFJ0URNEmEwNbU6ca5gvct2"
+OPEN_API_KEY = "YOUR_APIKEY"
 # Set up Google Calendar API
 CALENDAR_CLIENT_SECRET_FILE = 'google_calendar_oauth.json'
 SCOPES = ['https://www.googleapis.com/auth/calendar']
