@@ -19,23 +19,38 @@ GET_FREE_SLOTS = {
       }
     }
 BOOK_APPOINTMENT = {
-      "type": "function",
-      "function": {
+    "type": "function",
+    "function": {
         "name": "book_appointment",
-        "description": "Book an appointment for a calendar",
+        "description": "Book an appointment with optional recurrence.",
         "parameters": {
-          "type": "object",
-          "properties": {
-            "time": {
-              "type": "string",
-              "description": "Time slot for the appointment. Infer this as a date time in ISO based on the user input and his timezone. Each appointment is for 45minutes"
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string",
+                    "description": "Time slot for the appointment. Should be in ISO format."
+                },
+                "recurrence": {
+                    "type": "boolean",
+                    "description": "Indicates whether the appointment is recurring."
+                },
+                "recurrence_rule": {
+                    "type": "string",
+                    "description": "Recurrence rule in iCalendar (RFC 5545) format. Required if 'recurrence' is true.USe the following example for reference 'FREQ=WEEKLY;BYDAY=MO;UNTIL=20240605T170000Z;'"
+                },
+                "days_of_week": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Days of the week for recurring appointments (e.g., ['MO', 'WE'] for Mondays and Wednesdays). Required if 'recurrence' is true."
+                }
             },
-
-          },
-          "required": ["time"]
+            "required": ["time", "recurrence"]
         }
-      }
     }
+}
+
 UPCOMING_APPOINTMENTS = {
       "type": "function",
       "function": {
@@ -92,3 +107,7 @@ RESCHEDULE_APPOINTMENT = {
         }
       }
     }
+
+FILE_SEARCH = {
+    "type": "file_search",
+}
