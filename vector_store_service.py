@@ -8,10 +8,9 @@ class VectorStoreService:
     def get_store_id(self):
         return self.store
     
-    def loadfile(self, file_path):
+    def loadfile(self, file_paths):
         
         # Ready the files for upload to OpenAI 
-        file_paths = [file_path]
         file_streams = [open(path, "rb") for path in file_paths]
         
         # Use the upload and poll SDK helper to upload the files, add them to the vector store,

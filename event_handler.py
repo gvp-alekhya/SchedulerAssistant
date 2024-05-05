@@ -105,7 +105,7 @@ class EventHandler(AssistantEventHandler):
                 annotation.text, f"[{index}]"
             )
             if file_citation := getattr(annotation, "file_citation", None):
-                cited_file = Client.files.retrieve(file_citation.file_id)
+                cited_file = self.openai_client.files.retrieve(file_citation.file_id)
                 citations.append(f"[{index}] {cited_file.filename}")
 
         print(message_content.value)
